@@ -1,0 +1,40 @@
+name: Build Flutter APK
+
+on:
+  push:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      # Установка Java (нужна для Android)
+      - uses: actions/setup-java@v3
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+
+      # Установка Flutter
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.19.0'
+          channel: 'stable'
+
+      # Скачивание библиотек
+      - name: Get dependencies
+        run: flutter pub get
+
+      # Сборка APK
+      - name: Build APK
+        run: flutter build apk --release --no-tree-shake-icons
+
+      # Загрузка готового файла
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: nikita-ai-app
+          path: build/app/outputs/flutter-apk/app-release.apk
